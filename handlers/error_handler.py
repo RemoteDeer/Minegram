@@ -5,12 +5,6 @@ from aiogram.exceptions import TelegramAPIError, AiogramError
 
 router = Router()
 
-
-def serialize_object(obj):
-    if isinstance(obj, Enum):
-        return obj.value
-    return str(obj)
-
 @router.errors()
 async def errors_handler(update: types.Update, exception: Exception):
     """

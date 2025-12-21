@@ -1,15 +1,15 @@
 import asyncio
 
 from aiogram import Dispatcher
+import sys, traceback
 
 from loader import bot, storage, db
-from utils.db_api import create_table
 from handlers import router
 
 
 async def on_startup():
     await db.connect()
-    await create_table.run(db)
+    await db.create_table()
 
 async def on_shutdown():
     await db.disconnect()
@@ -23,7 +23,13 @@ async def main():
     try:
         await dp.start_polling(bot)
     finally:
-        on_shutdown()
+        await on_shutdown()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try: 
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Shutdown requested...exiting")
+    except Exception:
+        traceback.print_exc(file=sys.stdout)
+    sys.exit(0)

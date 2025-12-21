@@ -4,7 +4,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from data import config
-from utils.db_api.postgresql import Database
+from database import Database
 
 bot = Bot(
     token=str(config.TOKEN), 
