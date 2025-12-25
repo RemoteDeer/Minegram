@@ -12,5 +12,6 @@ bot = Bot(
         parse_mode=ParseMode.HTML
     )
 )
+
 storage = MemoryStorage()
 db = Database()

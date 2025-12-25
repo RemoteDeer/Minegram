@@ -5,9 +5,9 @@ class RequestsManager:
         sql = 'INSERT INTO requests (user_id, text_req) VALUES ($1, $2)'
         await self.execute(sql, user_id, text_req)
     
-    async def requests_asnwer(self, request_id, status, text_req):
-        sql = 'UPDATE requests SET status = $1, text_req = $2, answered_at = CURRENT_TIMESTAMP WHERE request_id = $3'
-        return await self.execute(sql, status, text_req, request_id)
+    async def requests_asnwer(self, request_id, status, text_ans):
+        sql = 'UPDATE requests SET status = $1, text_ans = $2, answered_at = CURRENT_TIMESTAMP WHERE request_id = $3'
+        return await self.execute(sql, status, text_ans, request_id)
     
 
     async def get_total_requests(self, **kwargs):
@@ -123,7 +123,7 @@ class RequestsManager:
 
             if record['text_ans'] and record['answered_at']:
                 date_ans, time_ans = self.format_timestamp(record['answered_at'])
-                response_text = self.truncate_text(record['text_ans'], max_len=20)
+                response_text = self.truncate_text(record['text_ans'], max_len=80)
                 lines.append(
                     f"<blockquote expandable> 🗓️ {date_ans} ⏰ {time_ans} \n {response_text} </blockquote>"
                 )

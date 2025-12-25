@@ -26,13 +26,57 @@ async def cbqr_requests(callback: CallbackQuery):
         await callback.message.edit_text('Requests menu',
                                          reply_markup = menuRequests)
 
+def parser_answer_args(args_text):
+    answer_params = {
+        'request_id' : 0,
+        'status' : 'open',
+        'text_ans' : ''
+    }
+
+    if not args_text:
+        return answer_params
+    
+    for arg in args_text.split(maxsplit=2):
+        if "=" in arg:
+            key, value = arg.split("=", 1)
+            if key == 'request_id':
+                answer_params['request_id'] = int(value)
+            else:
+                answer_params[key] = value
+    
+    return answer_params
+
+@router.message(Command('requests_answer'))
+async def cmd_requests_answer(message: Message, command: CommandObject):
+    from_user = message.from_user
+
+    answer_params = parser_answer_args(command.args)
+
+    if from_user.id != OWNER_ID:
+        await message.answer("Error: Insufficient Privilege")
+        return
+
+    elif answer_params['request_id'] <= 0:
+        await message.answer("Error: Incorrect request_id")
+        return
+    
+    elif not answer_params['text_ans']:
+        await message.answer("Error: The answer is empty")
+        return
+
+    elif not command.args:
+        await message.answer("Error: Missing text argument")
+        return
+
+    else:
+        await db.requests_asnwer(request_id=answer_params['request_id'], status=answer_params['status'], text_ans=answer_params['text_ans'])
+        await message.answer('Answer was added')
+
 @router.message(Command('requests_add'))
 async def cmd_requests_add(message: Message, command: CommandObject):
     from_user = message.from_user
 
-    if from_user.id != OWNER_ID:
-        await message.answer("Error: Insufficient Privilege")
-    elif not command.args:
+    if not command.args:
         await message.answer("Error: Missing text argument")
     else:
         text_req = command.args
@@ -43,7 +87,7 @@ async def cmd_requests_add(message: Message, command: CommandObject):
             await message.answer(f"Something went wrong: {e}")
 
 def parser_request_args(args_text):
-    pagination_params ={
+    pagination_params = {
         'page' : 1, 
         'per_page' : 5
     }
@@ -104,7 +148,7 @@ async def cbqr_requests_read(callback: CallbackQuery, state: FSMContext):
     if not formatted:
         await callback.answer("No Requests Found")
         await callback.message.edit_text("📭 No Requests Found")
-        state.clear()
+        await state.clear()
         return
 
     keyboard = await create_pagination_keyboard(current_page=state_data['page'], total_pages=total_pages)
@@ -177,7 +221,7 @@ async def cbqr_requests_list_update(callback: CallbackQuery, state: FSMContext):
 
     if not formatted:
         await callback.answer("📭 No Requests Found", show_alert=True)
-        state.clear()
+        await state.clear()
         return
 
     keyboard = await create_pagination_keyboard(current_page=new_page, total_pages=total_pages)

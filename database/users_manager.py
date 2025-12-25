@@ -2,10 +2,14 @@ class UsersManager:
     async def add_user(self, user_id, username):
         sql = 'INSERT INTO users (user_id, username) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING'
         await self.execute(sql, user_id, username)
-
+    
     async def select_all_users(self):
         sql = 'SELECT * FROM users'
         return await self.fetch(sql)
+    
+    async def select_admins(self):
+        sql = 'SELECT user_id FROM users WHERE role = $1 or role = $2'
+        return await self.fetch(sql, 'admin', 'owner')
     
     async def select_user(self, **kwargs):
         sql = 'SELECT * FROM users WHERE '

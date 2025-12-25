@@ -1,12 +1,14 @@
 import logging
-from enum import Enum
-from aiogram import Router, types
+from aiogram import Router
+from aiogram.types import ErrorEvent
 from aiogram.exceptions import TelegramAPIError, AiogramError
 
 router = Router()
 
 @router.errors()
-async def errors_handler(update: types.Update, exception: Exception):
+async def errors_handler(event: ErrorEvent):
+    exception = event.exception
+    update = event.update
     """
     Global exception handler for all Aiogram/Telegram errors.
     Logs all known exceptions and catches everything else as well.

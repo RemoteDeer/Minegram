@@ -39,6 +39,10 @@ async def cmd_select_user(message: Message, command: CommandObject, state: FSMCo
     
     filter_params = parser_user_select_args(command.args)
 
+    if not filter_params:
+        await message.answer("Error: Incorrect Filtering Parameters")
+        return
+
     user = await db.select_user(**filter_params)
 
     if not user:

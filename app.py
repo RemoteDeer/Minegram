@@ -5,11 +5,16 @@ import sys, traceback
 
 from loader import bot, storage, db
 from handlers import router
+import middlewares
 
 
-async def on_startup():
+async def on_startup(dp):
+    middlewares.setup(dp)
     await db.connect()
     await db.create_table()
+
+    from utils.notify_admins import on_startup_notify
+    await on_startup_notify()
 
 async def on_shutdown():
     await db.disconnect()
@@ -19,7 +24,7 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.include_router(router)
 
-    await on_startup()
+    await on_startup(dp)
     try:
         await dp.start_polling(bot)
     finally:
